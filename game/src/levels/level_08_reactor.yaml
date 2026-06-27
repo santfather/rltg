@@ -1,0 +1,176 @@
+id: "level_08"
+title: "Миссия 8: Реакторный отсек"
+location: "Реакторный отсек — Reactor Bay"
+
+ascii_art_path: "level_08.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   REACTOR BAY — COLD SHUTDOWN       ║
+  ║   SEQUENCE: COOLANT → CORE → GO    ║
+  ║   O2: ███░░░░░░░░░ 32%              ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |  REACTOR BAY     |
+    |                  |
+    |[MANUAL][REACTOR/]|
+    |  .        .      |
+    | 3-step sequence  |
+    |[LOGS/] [CORE >>>]|
+    '=================='
+  hotspots:
+    - id: "manual"
+      label: "[MANUAL]"
+      tooltip: "reactor_manual.txt\nПоследовательность запуска."
+      detail: |
+        .---------.
+        |reactor  |
+        |_manual  |
+        |.txt     |
+        |coolant→ |
+        |core→go  |
+        '---------'
+      nudge: "cat reactor_manual.txt"
+
+    - id: "reactor"
+      label: "[REACTOR/]"
+      tooltip: "Скрипты запуска.\n3 шага по порядку."
+      detail: |
+        .---------.
+        |reactor/ |
+        |start    |
+        |_coolant |
+        |_core    |
+        |_reactor |
+        '---------'
+      nudge: "cd /reactor"
+
+    - id: "logs"
+      label: "[LOGS/]"
+      tooltip: "reactor.log\nСимуляция tail -f"
+      detail: |
+        .---------.
+        | logs/   |
+        |reactor  |
+        |.log     |
+        |tail -f  |
+        '---------'
+      nudge: "tail -f logs/reactor.log"
+
+    - id: "core"
+      label: "[CORE >>>]"
+      tooltip: "Финальный запуск\nstart_reactor.sh"
+      detail: |
+        .---------.
+        | REACTOR |
+        | COLD    |
+        | SHUTDOWN|
+        | step 3  |
+        '---------'
+      nudge: "./start_reactor.sh"
+
+narrative:
+  - "RETRO-UX // РЕАКТОРНЫЙ ОТСЕК — НОСТРОМО-8"
+  - "Реактор: COLD SHUTDOWN"
+  - "Для запуска требуется последовательный старт трёх систем."
+  - "Следи за логом запуска: tail -f logs/reactor.log"
+  - "ЗАДАЧА: Запусти coolant → core → reactor в правильном порядке."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/reactor_manual.txt"
+    type: file
+    content: |
+      РЕАКТОР — ПРОТОКОЛ ЗАПУСКА
+      Строгая последовательность:
+      1. cd /reactor && ./start_coolant.sh
+      2. ./start_core.sh
+      3. ./start_reactor.sh
+      Мониторинг: tail -f logs/reactor.log
+  - path: "/reactor"
+    type: dir
+  - path: "/reactor/start_coolant.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "[COOLANT] Помпы активированы..."
+      echo "[COOLANT] Температура: стабилизируется"
+      echo "[OK] coolant_system: ONLINE"
+  - path: "/reactor/start_core.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "[CORE] Проверка охлаждения..."
+      echo "[CORE] Инициализация..."
+      echo "[OK] reactor_core: STANDBY"
+  - path: "/reactor/start_reactor.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "[REACTOR] Все системы готовы."
+      echo "[REACTOR] ЗАПУСК... 3... 2... 1..."
+      echo "[REACTOR] ONLINE ✓"
+  - path: "/logs"
+    type: dir
+  - path: "/logs/reactor.log"
+    type: file
+    content: |
+      [01:23:40] reactor: COLD SHUTDOWN
+      [01:23:41] awaiting coolant start
+      [01:23:42] awaiting core start
+      [01:23:43] awaiting reactor start
+
+systemctl_services:
+  - name: "coolant_pump"
+    status: "inactive"
+    is_enabled: true
+  - name: "reactor_core"
+    status: "inactive"
+    is_enabled: true
+
+tail_stream:
+  - "[01:23:45] coolant_pump: warming up..."
+  - "[01:23:47] coolant_pump: OK — temperature nominal"
+  - "[01:23:48] reactor_core: standby mode"
+  - "[01:23:50] awaiting start_reactor command..."
+
+learning_objectives:
+  - command: "tail -f"
+    description: "Следить за логом в реальном времени (симуляция)"
+    example: "tail -f logs/reactor.log"
+  - command: "systemctl status"
+    description: "Проверить статус системной службы"
+    example: "sudo systemctl status coolant_pump"
+  - command: "./start_coolant.sh"
+    description: "Последовательный запуск систем реактора"
+    example: "cd /reactor && ./start_coolant.sh"
+
+win_condition:
+  type: "sequence"
+  steps:
+    - command: "./start_coolant.sh"
+      working_directory: "/reactor"
+    - command: "./start_core.sh"
+      working_directory: "/reactor"
+    - command: "./start_reactor.sh"
+      working_directory: "/reactor"
+
+hints:
+  - level: 1
+    text: "Читай мануал: cat reactor_manual.txt — там последовательность"
+  - level: 2
+    text: "Запускай системы по порядку из /reactor: coolant → core → reactor"
+  - level: 3
+    text: "Полное решение: cd /reactor → ./start_coolant.sh → ./start_core.sh → ./start_reactor.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 35
+  score: 300
+  unlock_log: "Реактор ONLINE. Энергия восстановлена. Финальный отсек: сетевой узел."

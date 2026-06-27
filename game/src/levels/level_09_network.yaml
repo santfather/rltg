@@ -1,0 +1,187 @@
+id: "level_09"
+title: "Миссия 9: Сетевой узел — SOS"
+location: "Сетевой узел — Телекоммуникационный отсек"
+
+ascii_art_path: "level_09.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   NETWORK HUB — FINAL RELAY         ║
+  ║   SOS CHANNEL: STANDBY              ║
+  ║   O2: ██░░░░░░░░░░ 22%              ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |  NETWORK HUB     |
+    |                  |
+    |[NET]  [SECRETS]  |
+    |  .        .      |
+    | ping 10.0.0.42   |
+    | ssh relay [RELAY]|
+    |  [SOS >>>]       |
+    '=================='
+  hotspots:
+    - id: "net"
+      label: "[NET]"
+      tooltip: "Сетевые интерфейсы.\nip a, ping"
+      detail: |
+        .---------.
+        | ip a    |
+        |eth0:    |
+        |10.0.0.5 |
+        |ping .42 |
+        '---------'
+      nudge: "ip a"
+
+    - id: "secrets"
+      label: "[SECRETS]"
+      tooltip: "SSH credentials.\nssh_credentials.txt"
+      detail: |
+        .---------.
+        |/secrets/|
+        |ssh_cred |
+        |.txt     |
+        '---------'
+      nudge: "cat /secrets/ssh_credentials.txt"
+
+    - id: "relay"
+      label: "[RELAY]"
+      tooltip: "Ретранслятор 10.0.0.42.\nSSH → activate_relay.sh"
+      detail: |
+        .---------.
+        |ssh      |
+        |relay_op |
+        |@10.0.0. |
+        |42       |
+        '---------'
+      nudge: "ssh relay_operator@10.0.0.42"
+
+    - id: "sos"
+      label: "[SOS >>>]"
+      tooltip: "Финал игры.\nАктивировать SOS канал."
+      detail: |
+        .---------.
+        | ./relay/|
+        |activate |
+        |_relay   |
+        |.sh      |
+        '---------'
+      nudge: "./relay/activate_relay.sh"
+
+narrative:
+  - "RETRO-UX // СЕТЕВОЙ УЗЕЛ — НОСТРОМО-8"
+  - "Двигатели ONLINE. Маяк ONLINE."
+  - "Последнее препятствие: спасательная станция не отвечает."
+  - "Подключись к ретранслятору и активируй канал связи."
+  - "ЗАДАЧА: SSH на 10.0.0.42 и запусти activate_relay.sh"
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/network_log.txt"
+    type: file
+    content: |
+      NETWORK HUB — STATUS LOG
+      eth0: 10.0.0.5/24 [ONLINE]
+      Relay node 10.0.0.42: REACHABLE
+      Action: SSH relay_operator@10.0.0.42
+  - path: "/secrets"
+    type: dir
+  - path: "/secrets/ssh_credentials.txt"
+    type: file
+    permissions: "600"
+    content: |
+      SSH ДОСТУП — РЕТРАНСЛЯТОР RELAY-NODE-7
+      ══════════════════════════════════════
+      HOST: 10.0.0.42
+      USER: relay_operator
+      PASS: r3lay_2187
+
+      ВНИМАНИЕ: Данный файл доступен только владельцу (chmod 600).
+  - path: "/relay"
+    type: dir
+  - path: "/relay/connect_relay.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "Подключение к ретранслятору..."
+      echo "  ssh relay_operator@10.0.0.42"
+
+sudo_password: "n0str0m0"
+
+network:
+  - iface: "lo"
+    inet: "127.0.0.1/8"
+    status: "UP"
+  - iface: "eth0"
+    inet: "10.0.0.5/24"
+    status: "UP"
+
+reachable_hosts:
+  - "10.0.0.42"
+
+remote_filesystem:
+  host: "10.0.0.42"
+  user: "relay_operator"
+  filesystem:
+    - path: "/"
+      type: dir
+    - path: "/relay"
+      type: dir
+    - path: "/relay/activate_relay.sh"
+      type: file
+      permissions: "750"
+      content: |
+        #!/bin/bash
+        echo "[RELAY] Канал связи активирован."
+        echo "[RELAY] SOS TRANSMITTED ✓"
+        echo "[SOS_SENT]"
+    - path: "/config"
+      type: dir
+    - path: "/config/relay_config.txt"
+      type: file
+      permissions: "644"
+      content: |
+        RELAY NODE 7 — CONFIGURATION
+        Channel: SOS_EMERGENCY
+        Frequency: 472.88 MHz
+        Range: 50 AU
+        Status: STANDBY
+
+learning_objectives:
+  - command: "ip a"
+    description: "Показать сетевые интерфейсы"
+    example: "ip a"
+  - command: "ping"
+    description: "Проверить доступность хоста"
+    example: "ping 10.0.0.42"
+  - command: "ssh"
+    description: "Подключиться к удалённому ретранслятору"
+    example: "ssh relay_operator@10.0.0.42"
+
+win_condition:
+  type: "command_executed"
+  command: "./activate_relay.sh"
+  working_directory: "/relay"
+  requires_ssh: true
+  ssh_host: "10.0.0.42"
+
+hints:
+  - level: 1
+    text: "Найди IP сети: ip a, попробуй достучаться: ping 10.0.0.42"
+  - level: 2
+    text: "Credentials в secrets/: cat /secrets/ssh_credentials.txt"
+  - level: 3
+    text: "Полное решение: ip a → ping 10.0.0.42 → cat /secrets/ssh_credentials.txt → ssh relay_operator@10.0.0.42 → ./relay/activate_relay.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 99
+  score: 500
+  unlock_log: |
+    СИГНАЛ SOS ПРИНЯТ.
+    Спасательное судно HYPERION-3 выходит на курс.
+    Расчётное время прибытия: 4 часа.
+    Ты выжил.

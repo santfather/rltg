@@ -1,0 +1,63 @@
+# ==========================================
+# ComfyUI — локальная установка, не часть репо (6+ GB)
+# ==========================================
+ComfyUI/
+
+# ==========================================
+# Game — Node / Vite / Vitest / Playwright
+# ==========================================
+game/node_modules/
+game/dist/
+game/dist-ssr/
+game/coverage/
+game/test-results/
+game/playwright-report/
+game/blob-report/
+game/.env
+game/.env.*
+game/*.local
+game/*.tsbuildinfo
+
+# ==========================================
+# Cursor / IDE
+# ==========================================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ==========================================
+# OS
+# ==========================================
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# ==========================================
+# Large binary assets (LFS or external storage)
+# ==========================================
+assets/scenes/*.png
+assets/tilesets/*.png
+
+# ==========================================
+# Python (если ComfyUI случайно не в ignore)
+# ==========================================
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ==========================================
+# Logs
+# ==========================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

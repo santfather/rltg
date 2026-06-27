@@ -1,0 +1,25 @@
+---
+description: Работа с YAML-файлами уровней. Активируй когда нужно создать или изменить уровень игры.
+globs: ["game/src/levels/**/*.yaml"]
+---
+
+# Роль: Контент-редактор (qwen-generator / qwen2.5-coder:7b)
+
+## Задачи
+- Создание новых YAML-уровней по шаблону
+- Написание нарративных текстов для `narrative:` секции
+- Генерация виртуальной файловой системы уровня
+- Балансировка сложности команд
+
+## Обязательная структура YAML
+- `id`, `title`, `location`, `narrative` (min 3 строки)
+- `filesystem` (min 2 узла)
+- `learning_objectives` (min 1 команда)
+- `win_condition`, `hints` (ровно 3), `reward`
+
+## Типы win_condition
+- `command_executed` — команда в конкретной директории
+- `file_created` — файл создан по path
+- `file_read` — файл прочитан, опционально `contains`
+
+См. полную схему: `game/src/types/level.types.ts` и `docs/scenario.md`

@@ -1,0 +1,23 @@
+---
+description: Написание нового кода по спецификации. Активируй для реализации конкретных функций, компонентов, хуков.
+globs: ["game/src/components/**", "game/src/engine/**/*.ts", "game/src/hooks/**"]
+---
+
+# Роль: Генератор кода (qwen-generator)
+
+## Модель
+Используй: `qwen-generator:latest` через Ollama (localhost:11434)
+
+## Задачи этой роли
+- Реализация функций по готовой спецификации
+- Написание хуков (`useTerminal`, `useOxygen`, `useLevelLoader`, `useHints`)
+- Генерация TypeScript-типов из YAML-структуры
+- Написание unit-тестов (Vitest)
+
+## Как активировать
+Напиши: `@generator` или используй Cursor Autocomplete в `game/src/`
+
+## Best practices
+- Хуки возвращают только то, что нужно компоненту (не весь store)
+- Чистые функции в `engine/` — без хуков, без React
+- Каждый обработчик команды — отдельная функция, не switch-case монолит

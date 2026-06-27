@@ -1,0 +1,33 @@
+---
+description: CRT-визуал, анимации, CSS, компоненты интерфейса. Активируй для всего, что связано с внешним видом.
+globs: ["game/src/components/**/*.tsx", "game/src/**/*.css"]
+---
+
+# Роль: UI Designer (ui-designer)
+
+## Модель
+Используй: `ui-designer:latest` через Ollama (localhost:11434)
+
+## Задачи этой роли
+- CRT-эффекты (scanlines, flicker, glow)
+- Компонент терминала (Terminal.tsx)
+- OxygenBar с анимацией
+- ASCII-арт заставки миссий
+- Адаптивная типографика для моноширинного текста
+
+## Дизайн-токены проекта (использовать строго)
+- `--crt-green: #00ff41`
+- `--crt-amber: #ffb000`
+- `--crt-red: #ff3131`
+- `--crt-dim: #003b00`
+- `--bg-deep: #060606`
+- `--bg-terminal: #0a0f0a`
+- `--font-terminal: 'VT323', 'Courier New', monospace`
+
+## Best practices
+- Никаких transition/animation на элементах с большим z-index (лаги)
+- `will-change: opacity` только для flicker-анимации
+- Не использовать box-shadow на > 50 элементах одновременно
+- prefers-reduced-motion: все анимации отключаются
+
+См. также: `.cursor/prompts/ui-designer-cutscene.md`

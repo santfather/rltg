@@ -1,0 +1,172 @@
+id: "level_03"
+title: "Миссия 3: Грузовой отсек"
+location: "Грузовой отсек — Hold C"
+
+ascii_art_path: "level_03.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   CARGO HOLD C — CLASSIFIED        ║
+  ║   MANIFEST: CORRUPTED              ║
+  ║   O2: ██████░░░░░░ 51%             ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |   CARGO BAY      |
+    |                  |
+    |[MANIF] [NAV_AR/] |
+    |   .        .     |
+    | navigation       |
+    |  .tar.gz         |
+    | [BEACON/DATA/]   |
+    '=================='
+  hotspots:
+    - id: "manifest"
+      label: "[MANIF]"
+      tooltip: "Грузовой манифест.\nУказывает на nav-архив."
+      nudge: "cat /cargo/manifest.txt"
+
+    - id: "nav_archive"
+      label: "[NAV_AR/]"
+      tooltip: "nav_archive/\nnavigation_data.tar.gz"
+      detail: |
+        .---------.
+        |nav_     |
+        |archive/ |
+        |.tar.gz  |
+        |tar -xzf |
+        '---------'
+      nudge: "tar -tzf /cargo/nav_archive/navigation_data.tar.gz"
+
+    - id: "beacon"
+      label: "[BEACON/DATA/]"
+      tooltip: "Сюда распаковать архив\nи запустить beacon_protocol.sh"
+      detail: |
+        .---------.
+        |/beacon/ |
+        |data/    |
+        |beacon_  |
+        |protocol |
+        '---------'
+      nudge: "tar -xzf ... -C /beacon/data/"
+
+narrative:
+  - "СИСТЕМА: Грузовой отсек. Содержимое засекречено — груз Уэйленд-Ютани."
+  - "ПАРКЕР [запись]: «Нашёл странные контейнеры. Маркировка стёрта. Внутри что-то двигалось.»"
+  - "СИСТЕМА: Навигационные данные для маяка хранятся в зашифрованном архиве."
+  - "АИ «МАТЬ»: Архив повреждён при столкновении. Необходима ручная распаковка."
+  - "СИСТЕМА: Без навигационных координат маяк не передаст сигнал. Работайте."
+  - "ЗАДАЧА: Найдите архив, распакуйте его и запустите маяк с координатами."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/cargo"
+    type: dir
+  - path: "/cargo/manifest.txt"
+    type: file
+    content: |
+      ГРУЗОВОЙ МАНИФЕСТ — NOSTROMO-8
+      ═══════════════════════════════
+      Контейнер WY-001 ... [ДАННЫЕ ПОВРЕЖДЕНЫ]
+      Контейнер WY-002 ... [ДАННЫЕ ПОВРЕЖДЕНЫ]
+      Контейнер NAV-007 ... navigation_data.tar.gz [ПРИОРИТЕТ: КРИТИЧЕСКИЙ]
+      Контейнер WY-003 ... [ЗАСЕКРЕЧЕНО — УРОВЕНЬ ДОСТУПА: ALPHA]
+
+      ПРИМЕЧАНИЕ: nav-архив необходимо распаковать в /beacon/data/
+  - path: "/cargo/nav_archive"
+    type: dir
+  - path: "/cargo/nav_archive/navigation_data.tar.gz"
+    type: file
+    content: "[BINARY: TAR.GZ ARCHIVE — используйте tar для распаковки]"
+    is_archive: true
+    archive_contents:
+      - path: "coordinates.txt"
+        content: |
+          НАВИГАЦИОННЫЕ ДАННЫЕ — ASTEROID BELT LV-426
+          ══════════════════════════════════════════════
+          КООРДИНАТЫ МАЯКА:
+            X: 47.2391° N
+            Y: 112.8847° E
+            Z: -0.3312 (высота орбиты)
+          ЧАСТОТА СИГНАЛА: 7.492 GHz
+          КОД АКТИВАЦИИ: BCN-DELTA-7749
+      - path: "beacon_protocol.sh"
+        content: |
+          #!/bin/bash
+          echo "▶ Загрузка навигационных данных..."
+          echo "▶ Координаты: LV-426 / X:47.2391 / Y:112.8847"
+          echo "▶ Синхронизация с маяком..."
+          echo "▶ Код активации: BCN-DELTA-7749"
+          echo "▶ Передача сигнала бедствия..."
+          echo "██ МАЯК АКТИВИРОВАН. Сигнал SOS транслируется. ██"
+          echo "▶ Расчётное время ответа: 72 часа."
+  - path: "/beacon"
+    type: dir
+  - path: "/beacon/data"
+    type: dir
+  - path: "/beacon/README.txt"
+    type: file
+    content: |
+      СИСТЕМА МАЯКА — NOSTROMO-8
+      ───────────────────────────
+      Маяк требует навигационные данные в директории /beacon/data/
+
+      Шаги для активации:
+        1. Найдите архив с данными (проверьте /cargo/)
+        2. Распакуйте архив: tar -xzf <архив> -C /beacon/data/
+        3. Перейдите в /beacon/data/ и запустите beacon_protocol.sh
+
+      Команды работы с архивами:
+        tar -xzf файл.tar.gz          — распаковать в текущую директорию
+        tar -xzf файл.tar.gz -C /путь — распаковать в указанную директорию
+        tar -tzf файл.tar.gz          — просмотреть содержимое архива
+  - path: "/tools"
+    type: dir
+  - path: "/tools/organize.sh"
+    type: file
+    permissions: "755"
+    content: |
+      #!/bin/bash
+      echo "Создание структуры директорий..."
+      mkdir -p /beacon/data/nav
+      mkdir -p /beacon/data/logs
+      echo "Директории созданы."
+      echo "Скопируйте данные: cp <файл> /beacon/data/nav/"
+
+learning_objectives:
+  - command: "tar"
+    description: "Работа с архивами tar/gz"
+    example: "tar -xzf navigation_data.tar.gz -C /beacon/data/"
+  - command: "tar -tzf"
+    description: "Просмотр содержимого архива без распаковки"
+    example: "tar -tzf navigation_data.tar.gz"
+  - command: "mkdir"
+    description: "Создать директорию"
+    example: "mkdir -p /beacon/data/nav"
+  - command: "cp"
+    description: "Копировать файл"
+    example: "cp coordinates.txt /beacon/data/"
+  - command: "mv"
+    description: "Переместить или переименовать файл"
+    example: "mv old_name.txt new_name.txt"
+
+win_condition:
+  type: "command_executed"
+  command: "./beacon_protocol.sh"
+  working_directory: "/beacon/data"
+
+hints:
+  - level: 1
+    text: "Прочитайте /beacon/README.txt — там пошаговая инструкция. Архив в /cargo/nav_archive/"
+  - level: 2
+    text: "Используйте: tar -xzf /cargo/nav_archive/navigation_data.tar.gz -C /beacon/data/ чтобы распаковать архив."
+  - level: 3
+    text: "После распаковки: cd /beacon/data → chmod +x beacon_protocol.sh → ./beacon_protocol.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 15
+  score: 200
+  unlock_log: "Маяк активирован! Сигнал SOS транслируется. Ответ придёт через 72 часа. Нужно продержаться. Следующее — рубка связи."

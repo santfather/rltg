@@ -1,0 +1,147 @@
+id: "level_01"
+title: "Миссия 1: Шлюз"
+location: "Внешний шлюз — Сектор A"
+
+ascii_art_path: "level_01.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   [!!!] AIRLOCK CONTROL SYSTEM     ║
+  ║   DOOR STATUS: LOCKED              ║
+  ║   O2: ██████████░░ 78%             ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |  AIRLOCK - A     |
+    |                  |
+    |[README] [LOGS/]  |
+    |   .        .     |
+    | [system_core/]   |
+    | open_door.sh     |
+    |   [DOOR >>>]     |
+    '=================='
+  hotspots:
+    - id: "readme"
+      label: "[README]"
+      tooltip: "README.txt в system_core/\nПодсказка про chmod."
+      detail: |
+        .---------.
+        | README  |
+        |.txt     |
+        |chmod +x |
+        |./script |
+        '---------'
+      nudge: "cat /system_core/README.txt"
+
+    - id: "logs"
+      label: "[LOGS/]"
+      tooltip: "Журнал доступа.\nПрава сброшены после столкновения."
+      nudge: "cat /logs/access.log"
+
+    - id: "core"
+      label: "[system_core/]"
+      tooltip: "Системный блок шлюза.\nСкрипт open_door.sh внутри."
+      detail: |
+        .---------.
+        |system_  |
+        |core/    |
+        |000 perms|
+        |chmod!   |
+        '---------'
+      nudge: "cd /system_core && ls -la"
+
+    - id: "door"
+      label: "[DOOR >>>]"
+      tooltip: "Гермодверь.\nНужен chmod +x и ./open_door.sh"
+      detail: |
+        .---------.
+        |  DOOR   |
+        | LOCKED  |
+        |open_door|
+        |  .sh    |
+        '---------'
+      nudge: "chmod +x open_door.sh && ./open_door.sh"
+
+narrative:
+  - "СИСТЕМА: Внешний шлюз обнаружен. Герметизация нарушена после столкновения."
+  - "СИСТЕМА: Дверь заблокирована — требуется запуск скрипта разблокировки."
+  - "КАПИТАН [запись]: «Все скрипты управления лежат в /system_core. Не забудь chmod!»"
+  - "СИСТЕМА: Кислород убывает. Времени мало. Действуйте быстро."
+  - "ЗАДАЧА: Найдите скрипт открытия двери, выдайте ему права на исполнение и запустите."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/system_core"
+    type: dir
+  - path: "/system_core/open_door.sh"
+    type: file
+    permissions: "000"
+    content: |
+      #!/bin/bash
+      # AIRLOCK DOOR RELEASE — NOSTROMO-8
+      echo "▶ Инициализация протокола разблокировки..."
+      echo "▶ Проверка давления в шлюзе... OK"
+      echo "▶ Снятие магнитных замков... OK"
+      echo "██ ДВЕРЬ ОТКРЫТА. Путь в жилой отсек свободен. ██"
+  - path: "/system_core/README.txt"
+    type: file
+    content: |
+      СИСТЕМНЫЙ БЛОК — ДОКУМЕНТАЦИЯ
+      ──────────────────────────────
+      Внимание! Скрипты требуют прав на исполнение.
+      После крушения права сброшены в целях безопасности.
+
+      Чтобы выдать права:
+        chmod +x <скрипт>
+
+      Чтобы запустить скрипт:
+        ./<скрипт>    (если вы уже в папке со скриптом)
+
+      Текущая директория: используйте pwd для проверки.
+  - path: "/logs"
+    type: dir
+  - path: "/logs/access.log"
+    type: file
+    content: |
+      [ACCESS LOG — DOOR CONTROL]
+      ────────────────────────────
+      2157-03-12 09:41  USER: capt_dallas  — open_door.sh  — OK
+      2157-03-12 11:05  USER: engineer_parker — open_door.sh — OK
+      2157-03-14 03:22  COLLISION EVENT — SYSTEM RESET
+      2157-03-14 03:22  PERMISSIONS RESET: /system_core/* → 000
+      2157-03-14 03:22  [!] MANUAL OVERRIDE REQUIRED
+
+learning_objectives:
+  - command: "pwd"
+    description: "Показать текущий путь (где вы находитесь)"
+    example: "pwd"
+  - command: "ls -la"
+    description: "Список файлов с правами доступа"
+    example: "ls -la /system_core"
+  - command: "chmod"
+    description: "Изменить права доступа к файлу"
+    example: "chmod +x open_door.sh"
+  - command: "cd"
+    description: "Перейти в директорию"
+    example: "cd /system_core"
+
+win_condition:
+  type: "command_executed"
+  command: "./open_door.sh"
+  working_directory: "/system_core"
+
+hints:
+  - level: 1
+    text: "Проверьте содержимое /system_core с помощью ls -la. Обратите внимание на права файлов."
+  - level: 2
+    text: "Файл open_door.sh существует, но не может выполняться. Команда chmod +x open_door.sh исправит это."
+  - level: 3
+    text: "Полная последовательность: cd /system_core → chmod +x open_door.sh → ./open_door.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 25
+  score: 100
+  unlock_log: "Шлюз открыт. Кислородная маска найдена — резервы пополнены. Следующий отсек: жилой блок экипажа."

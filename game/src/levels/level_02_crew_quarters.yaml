@@ -1,0 +1,197 @@
+id: "level_02"
+title: "Миссия 2: Жилой отсек"
+location: "Жилой блок экипажа — Deck B"
+
+ascii_art_path: "level_02.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   CREW QUARTERS — DECK B           ║
+  ║   CREW: 7 PERSONS — STATUS: MIA    ║
+  ║   O2: ████████░░░░ 63%             ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    | CREW QUARTERS    |
+    |                  |
+    |[CREW/] [SYSTEM/] |
+    |   .        .     |
+    | grep MED-?       |
+    | [MED_BAY >>>]    |
+    | activate script  |
+    '=================='
+  hotspots:
+    - id: "crew"
+      label: "[CREW/]"
+      tooltip: "Личные файлы экипажа.\nКапитан спрятал намёк на код."
+      detail: |
+        .---------.
+        |/crew/   |
+        |dallas/  |
+        |personal |
+        |.log     |
+        '---------'
+      nudge: "grep -r 'MED-' /crew/"
+
+    - id: "system"
+      label: "[SYSTEM/]"
+      tooltip: "Системные конфиги.\nКод авторизации в med_access.conf"
+      detail: |
+        .---------.
+        |/system/ |
+        |config/  |
+        |AUTH_CODE|
+        |MED-4891 |
+        '---------'
+      nudge: "grep -r 'AUTH_CODE' /system/"
+
+    - id: "medbay"
+      label: "[MED_BAY >>>]"
+      tooltip: "Медицинский отсек заблокирован.\nСкрипт в /system/scripts/"
+      detail: |
+        .---------.
+        | activate|
+        |_med_bay  |
+        |.sh      |
+        |chmod +x |
+        '---------'
+      nudge: "chmod +x /system/scripts/activate_med_bay.sh"
+
+narrative:
+  - "СИСТЕМА: Жилой блок обесточен. Аварийное освещение активно."
+  - "СИСТЕМА: Экипаж не обнаружен. Повсюду следы поспешной эвакуации."
+  - "АИ «МАТЬ»: Доступ к медицинскому отсеку требует код авторизации."
+  - "АИ «МАТЬ»: Код был записан кем-то из экипажа. Ищите в личных файлах."
+  - "СИСТЕМА: Файлов много. Используйте поиск — вручную слишком долго."
+  - "ЗАДАЧА: Найдите код авторизации в файлах экипажа и активируйте медотсек."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/crew"
+    type: dir
+  - path: "/crew/dallas"
+    type: dir
+  - path: "/crew/dallas/personal.log"
+    type: file
+    content: |
+      Личный дневник — Капитан Даллас
+      ─────────────────────────────────
+      День 47. Снова тишина в эфире. Паркер ворчит про двигатели.
+      Ламберт боится. Эш слишком спокоен — это меня пугает.
+
+      Записал код медотсека на случай аварии. Спрятал в системных файлах.
+      Формат: MED-XXXX-YYYY
+  - path: "/crew/dallas/notes.txt"
+    type: file
+    content: |
+      Список дел:
+      - Проверить двигатели (попросить Паркера)
+      - Связаться с Уэйленд-Ютани
+      - Не забыть про код медотсека → ищи в /system/config/
+  - path: "/crew/ripley"
+    type: dir
+  - path: "/crew/ripley/personal.log"
+    type: file
+    content: |
+      Старший помощник Рипли — лог
+      ─────────────────────────────
+      Что-то не так с Эшем. Он нарушил карантин. Намеренно?
+      Даллас не слушает. Корпоративные инструкции важнее жизни экипажа.
+      Если что случится — я разберусься сама.
+  - path: "/crew/lambert"
+    type: dir
+  - path: "/crew/lambert/personal.log"
+    type: file
+    content: |
+      Навигатор Ламберт
+      ──────────────────
+      Мы слишком далеко от дома. Сигнал был ловушкой.
+      Зачем корпорация послала нас сюда?
+  - path: "/crew/parker"
+    type: dir
+  - path: "/crew/parker/personal.log"
+    type: file
+    content: |
+      Главный механик Паркер
+      ───────────────────────
+      Двигатели держатся. Бретт помогает.
+      Корпорация нас использует. Но деньги нужны.
+  - path: "/system"
+    type: dir
+  - path: "/system/config"
+    type: dir
+  - path: "/system/config/network.conf"
+    type: file
+    content: |
+      # Сетевые настройки NOSTROMO-8
+      HOSTNAME=nostromo8
+      IP=192.168.1.100
+      GATEWAY=192.168.1.1
+      DNS=10.0.0.1
+  - path: "/system/config/med_access.conf"
+    type: file
+    content: |
+      # Конфиг доступа к медицинскому отсеку
+      # Создан: капитан Даллас
+      UNIT=medical_bay
+      STATUS=locked
+      AUTH_CODE=MED-4891-ZETA
+      OVERRIDE_CMD=activate_med_bay.sh
+  - path: "/system/config/life_support.conf"
+    type: file
+    content: |
+      # Жизнеобеспечение
+      O2_LEVEL=63
+      CO2_SCRUBBERS=active
+      TEMP=20.1C
+      PRESSURE=1.01atm
+  - path: "/system/scripts"
+    type: dir
+  - path: "/system/scripts/activate_med_bay.sh"
+    type: file
+    permissions: "644"
+    content: |
+      #!/bin/bash
+      echo "▶ Проверка кода авторизации..."
+      echo "▶ Код принят: MED-4891-ZETA"
+      echo "▶ Снятие блокировки медицинского отсека..."
+      echo "▶ Активация криогенных камер для раненых..."
+      echo "██ МЕДИЦИНСКИЙ ОТСЕК АКТИВИРОВАН. Найдены медикаменты и кислородные баллоны. ██"
+
+learning_objectives:
+  - command: "grep"
+    description: "Поиск строки в файле"
+    example: "grep 'AUTH_CODE' /system/config/med_access.conf"
+  - command: "grep -r"
+    description: "Рекурсивный поиск по всем файлам в директории"
+    example: "grep -r 'MED-' /system/"
+  - command: "find"
+    description: "Найти файл по имени или типу"
+    example: "find / -name '*.conf'"
+  - command: "grep -i"
+    description: "Поиск без учёта регистра"
+    example: "grep -i 'code' /crew/dallas/notes.txt"
+  - command: "chmod"
+    description: "Дать права на выполнение скрипта"
+    example: "chmod +x /system/scripts/activate_med_bay.sh"
+
+win_condition:
+  type: "command_executed"
+  command: "./activate_med_bay.sh"
+  working_directory: "/system/scripts"
+
+hints:
+  - level: 1
+    text: "Капитан намекнул, что код спрятан в /system/config/. Попробуйте: ls /system/config/"
+  - level: 2
+    text: "Команда grep -r 'AUTH_CODE' /system/ найдёт нужную строку во всех файлах сразу."
+  - level: 3
+    text: "cd /system/scripts → chmod +x activate_med_bay.sh → ./activate_med_bay.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 20
+  score: 150
+  unlock_log: "Медотсек активирован. Найдены кислородные баллоны и аптечка. Следующая цель — грузовой отсек."

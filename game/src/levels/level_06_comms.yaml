@@ -1,0 +1,176 @@
+id: "level_06"
+title: "Миссия 6: Рубка связи"
+location: "Рубка связи — Beacon Deck"
+
+ascii_art_path: "level_06.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   COMMS ROOM — BEACON OFFLINE       ║
+  ║   LOGS: 200+ FILES SCATTERED        ║
+  ║   O2: ███░░░░░░░░░ 35%              ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |   COMMS ROOM     |
+    |                  |
+    |[DISH]  [LOGS/]   |
+    |  .        .      |
+    | 200+ files       |
+    |[BEACON/] [FREQ?] |
+    |  [MANUAL]        |
+    '=================='
+  hotspots:
+    - id: "dish"
+      label: "[DISH]"
+      tooltip: "Спутниковая антенна.\nОтключена. Нужна частота."
+      detail: |
+        .---------.
+        | DISH    |
+        | OFFLINE |
+        | need    |
+        | FREQ=?  |
+        '---------'
+
+    - id: "logs"
+      label: "[LOGS/]"
+      tooltip: "Папка logs/\n200+ файлов. Используй grep."
+      detail: |
+        .---------.
+        | logs/   |
+        |2187-03/ |
+        |emergency|
+        |.log←key |
+        '---------'
+      nudge: "grep -r \"FREQ\" logs/"
+
+    - id: "freq"
+      label: "[FREQ?]"
+      tooltip: "Частота сигнала SOS\nзашифрована в логах."
+      detail: |
+        .---------.
+        |FREQ=??? |
+        |grep -r  |
+        |\"FREQ\"  |
+        |logs/    |
+        '---------'
+      nudge: "grep -r \"FREQ\" logs/"
+
+    - id: "beacon"
+      label: "[BEACON/]"
+      tooltip: "Маяк SOS.\nactivate_beacon.sh"
+      detail: |
+        .---------.
+        | beacon/ |
+        |activate |
+        |_beacon  |
+        |.sh      |
+        '---------'
+      nudge: "cd /beacon"
+
+    - id: "manual"
+      label: "[MANUAL]"
+      tooltip: "comms_manual.txt\nПодсказки по поиску."
+      detail: |
+        .---------.
+        |comms    |
+        |_manual  |
+        |.txt     |
+        '---------'
+      nudge: "cat comms_manual.txt"
+
+narrative:
+  - "RETRO-UX // РУБКА СВЯЗИ — НОСТРОМО-8"
+  - "Статус маяка: OFFLINE"
+  - "Частота передачи: НЕИЗВЕСТНА"
+  - "Логи переговоров рассыпаны по сотням файлов."
+  - "Найди частоту сигнала SOS. Она где-то в логах."
+  - "ЗАДАЧА: Найди FREQ в логах и активируй маяк."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/comms_manual.txt"
+    type: file
+    content: |
+      РУБКА СВЯЗИ — ИНСТРУКЦИЯ
+      Частота SOS зафиксирована в emergency.log за 2187-03.
+      Используй: grep -r "FREQ" logs/
+      Затем активируй маяк: cd /beacon && ./activate_beacon.sh
+  - path: "/logs"
+    type: dir
+  - path: "/logs/2187-01"
+    type: dir
+  - path: "/logs/2187-01/routine_01.log"
+    type: file
+    content: ""
+  - path: "/logs/2187-01/routine_02.log"
+    type: file
+    content: ""
+  - path: "/logs/2187-02"
+    type: dir
+  - path: "/logs/2187-02/routine_01.log"
+    type: file
+    content: ""
+  - path: "/logs/2187-02/routine_02.log"
+    type: file
+    content: ""
+  - path: "/logs/2187-03"
+    type: dir
+  - path: "/logs/2187-03/crew_chat.log"
+    type: file
+    content: |
+      [2187-03-14 00:12] LAMBERT: Кто-нибудь слышал этот сигнал?
+      [2187-03-14 00:15] KANE: Это не наш канал.
+  - path: "/logs/2187-03/system.log"
+    type: file
+    content: |
+      [2187-03-14 01:00] Power failure in beacon subsystem
+  - path: "/logs/2187-03/emergency.log"
+    type: file
+    content: |
+      [2187-03-14 01:44] EMERGENCY PROTOCOL INITIATED
+      [2187-03-14 01:45] SOS FREQUENCY SET: FREQ=472.88
+      [2187-03-14 01:46] BEACON: OFFLINE (power failure)
+  - path: "/beacon"
+    type: dir
+  - path: "/beacon/activate_beacon.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "[BEACON] Частота 472.88 MHz установлена."
+      echo "[BEACON] SOS TRANSMITTER: ONLINE ✓"
+      echo "[BEACON] Сигнал бедствия активирован."
+
+learning_objectives:
+  - command: "grep -r"
+    description: "Рекурсивный поиск по директории"
+    example: "grep -r \"FREQ\" logs/"
+  - command: "find -name"
+    description: "Найти файлы по имени"
+    example: "find logs/ -name \"emergency*\""
+  - command: "grep -i"
+    description: "Поиск без учёта регистра"
+    example: "grep -i frequency logs/2187-03/emergency.log"
+
+win_condition:
+  type: "command_executed"
+  command: "./activate_beacon.sh"
+  working_directory: "/beacon"
+  requires_discovery: "FREQ=472.88"
+
+hints:
+  - level: 1
+    text: "Файлов много — используй поиск: grep -r \"FREQ\" logs/"
+  - level: 2
+    text: "Или найди нужный файл: find logs/ -name \"emergency*\""
+  - level: 3
+    text: "Полное решение: grep -r \"FREQ\" logs/ → cd /beacon → chmod +x activate_beacon.sh → ./activate_beacon.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 15
+  score: 200
+  unlock_log: "Маяк SOS активирован. Частота 472.88 MHz. Следующий отсек: машинное отделение."

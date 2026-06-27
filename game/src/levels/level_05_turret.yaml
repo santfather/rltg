@@ -1,0 +1,174 @@
+id: "level_05"
+title: "Миссия 5: Турельный пост"
+location: "Турельный пост — Сектор C"
+
+ascii_art_path: "level_05.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   TURRET CONTROL — SECTOR C         ║
+  ║   STATUS: AUTO-TURRET ACTIVE        ║
+  ║   O2: ████░░░░░░░░ 42%              ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    | TURRET CONTROL   |
+    |                  |
+    |[MNL]  [SCREEN]   |
+    |  .       .       |
+    |  PID:4821        |
+    |  99%CPU [EMRGNCY]|
+    |   [BARREL >>>]   |
+    '=================='
+  hotspots:
+    - id: "manual"
+      label: "[MNL]"
+      tooltip: "Руководство безопасности.\nПорт 4821, нужен kill."
+      detail: |
+        .---------.
+        |security |
+        |_manual  |
+        |.txt     |
+        |port 4821|
+        '---------'
+      nudge: "cat security_manual.txt"
+
+    - id: "screen"
+      label: "[SCREEN]"
+      tooltip: "Экран мониторинга.\nВидно процессы системы."
+      detail: |
+        .---------.
+        |netstat  |
+        |-tlnp    |
+        | :4821   |
+        |PID=4821 |
+        '---------'
+      nudge: "sudo netstat -tlnp"
+
+    - id: "emergency"
+      label: "[EMRGNCY]"
+      tooltip: "Аварийный отсек.\ndisable_turret.sh — финал."
+      detail: |
+        .---------.
+        |emergency|
+        |/disable |
+        |_turret  |
+        |.sh      |
+        '---------'
+      nudge: "chmod +x emergency/disable_turret.sh"
+
+    - id: "barrel"
+      label: "[BARREL >>>]"
+      tooltip: "Дуло турели смотрит\nна вход. Торопись."
+      detail: |
+        .---------.
+        | TURRET  |
+        | ACTIVE  |
+        | O2: -1.5|
+        | /30s    |
+        '---------'
+
+narrative:
+  - "RETRO-UX // ТУРЕЛЬНЫЙ ПОСТ — СЕКТОР C"
+  - "⚠  АВТОМАТИЧЕСКАЯ ТУРЕЛЬ АКТИВНА"
+  - "⚠  ДАТЧИК ДВИЖЕНИЯ: КАЛИБРОВАН"
+  - "Процесс управления турелью занимает порт 4821."
+  - "Найди PID процесса и уничтожь его."
+  - "ЗАДАЧА: Отключи turret_daemon и запусти процедуру аварийного отключения."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/security_manual.txt"
+    type: file
+    content: |
+      РУКОВОДСТВО ПО БЕЗОПАСНОСТИ — НОСТРОМО-8
+      Турель управляется процессом turret_daemon на порту 4821.
+
+      Для отключения:
+      1. Найди PID процесса: sudo netstat -tlnp | grep 4821
+         или: sudo lsof -i :4821
+      2. Уничтожь процесс: sudo kill -9 <PID>
+      3. Запусти процедуру: cd /emergency && ./disable_turret.sh
+  - path: "/logs"
+    type: dir
+  - path: "/logs/turret.log"
+    type: file
+    content: |
+      [TURRET LOG] Auto-targeting enabled on port 4821
+      [TURRET LOG] Motion sensor calibrated
+  - path: "/logs/active_ports.txt"
+    type: file
+    content: |
+      Active ports: 22, 4821, 8080
+      Turret daemon PID suspected: 4821
+  - path: "/emergency"
+    type: dir
+  - path: "/emergency/disable_turret.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "[TURRET] Система наведения отключена."
+      echo "[TURRET] Датчик движения: OFFLINE"
+      echo "[TURRET] Сектор C разблокирован ✓"
+  - path: "/emergency/override_code.txt"
+    type: file
+    permissions: "600"
+    content: |
+      OVERRIDE CODE: TUR-2187-OFF
+
+sudo_password: "n0str0m0"
+
+mock_processes:
+  - pid: 4821
+    user: "root"
+    cpu: 98.7
+    mem: 12.4
+    command: "turret_daemon"
+    port: 4821
+    is_target: true
+  - pid: 1102
+    user: "pilot"
+    cpu: 0.0
+    mem: 0.2
+    command: "sshd"
+    port: 22
+  - pid: 2205
+    user: "pilot"
+    cpu: 0.1
+    mem: 0.3
+    command: "web_monitor"
+    port: 8080
+
+learning_objectives:
+  - command: "netstat -tlnp"
+    description: "Показать активные сетевые порты и PID процессов"
+    example: "sudo netstat -tlnp"
+  - command: "lsof -i :4821"
+    description: "Найти процесс по порту"
+    example: "sudo lsof -i :4821"
+  - command: "kill -9"
+    description: "Принудительно завершить процесс"
+    example: "sudo kill -9 4821"
+
+win_condition:
+  type: "process_killed_and_command"
+  target_pid: 4821
+  command: "./disable_turret.sh"
+  working_directory: "/emergency"
+
+hints:
+  - level: 1
+    text: "Узнай какой процесс держит порт 4821: sudo netstat -tlnp или sudo lsof -i :4821"
+  - level: 2
+    text: "Запомни PID и уничтожь процесс: sudo kill -9 <PID>"
+  - level: 3
+    text: "Полное решение: sudo netstat -tlnp → sudo kill -9 4821 → chmod +x emergency/disable_turret.sh → cd /emergency → ./disable_turret.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 20
+  score: 200
+  unlock_log: "Турель отключена. Сектор C разблокирован. Следующий отсек: рубка связи."

@@ -1,0 +1,164 @@
+id: "level_00"
+title: "Миссия 0: Пробуждение"
+location: "Аварийная капсула — Сектор ZERO"
+
+ascii_art_path: "level_00.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   NOSTROMO-8  ESCAPE POD  [E-01]    ║
+  ║   STATUS: SYSTEMS ONLINE            ║
+  ║   O2: UNLIMITED  [TRAINING MODE]    ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |  ESCAPE POD      |
+    |                  |
+    |[DOCS]  [SYSTEM]  |
+    |   .         .    |
+    | emergency_       |
+    | protocol.txt     |
+    | [BRIEFING >>>]   |
+    '=================='
+  hotspots:
+    - id: "docs"
+      label: "[DOCS]"
+      tooltip: "Папка /docs/\nПротокол аварийного выживания."
+      detail: |
+        .---------.
+        |/docs/   |
+        |emergency|
+        |_protocol|
+        |.txt     |
+        '---------'
+      nudge: "cat /docs/emergency_protocol.txt"
+
+    - id: "system"
+      label: "[SYSTEM]"
+      tooltip: "Системная директория /system/\nТам брифинг миссии."
+      nudge: "cd /system"
+
+    - id: "briefing"
+      label: "[BRIEFING >>>]"
+      tooltip: "mission_briefing.txt\nФинал обучающего уровня."
+      detail: |
+        .---------.
+        | mission |
+        |_briefing|
+        |.txt     |
+        |WIN ✓   |
+        '---------'
+      nudge: "cat /system/mission_briefing.txt"
+
+narrative:
+  - "СИСТЕМА: Аварийная капсула активирована. Добро пожаловать, астронавт."
+  - "СИСТЕМА: Обнаружено критическое повреждение корпуса «Ностромо-8»."
+  - "СИСТЕМА: Вы единственный выживший. Кислород — на критическом уровне."
+  - "BIOS: Обучающий режим активирован. Таймер кислорода отключён."
+  - "BIOS: Для начала ознакомьтесь с терминалом управления капсулы."
+  - "ЗАДАЧА: Найдите и прочитайте протокол аварийного выживания."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/docs"
+    type: dir
+  - path: "/docs/emergency_protocol.txt"
+    type: file
+    content: |
+      ██████ ПРОТОКОЛ АВАРИЙНОГО ВЫЖИВАНИЯ ██████
+
+      Поздравляем с активацией терминала.
+      Следуйте инструкциям точно.
+
+      ШАГ 1: Осмотрите окружение — команда: ls
+      ШАГ 2: Перейдите в нужную директорию — команда: cd <папка>
+      ШАГ 3: Прочитайте файлы — команда: cat <файл>
+
+      ▶ СЛЕДУЮЩАЯ ЦЕЛЬ: перейдите в /system и прочитайте boot.log
+
+      [КОНЕЦ ПРОТОКОЛА — ID: EP-001-ALPHA]
+  - path: "/docs/commands_reference.txt"
+    type: file
+    content: |
+      КРАТКИЙ СПРАВОЧНИК КОМАНД
+      ─────────────────────────
+      ls            — список файлов в текущей директории
+      ls -la        — список с деталями (права, размер)
+      cd <папка>    — перейти в директорию
+      cd ..         — подняться на уровень выше
+      cd /          — перейти в корень
+      cat <файл>    — вывести содержимое файла
+      pwd           — показать текущий путь
+      clear         — очистить экран
+      hint          — получить подсказку (hint 1 / hint 2 / hint 3)
+  - path: "/system"
+    type: dir
+  - path: "/system/boot.log"
+    type: file
+    content: |
+      [BOOT LOG — NOSTROMO-8 ESCAPE POD E-01]
+      ─────────────────────────────────────────
+      00:00:01  POWER ON
+      00:00:03  CPU: OK
+      00:00:05  RAM: 512MB — OK
+      00:00:08  LIFE SUPPORT: NOMINAL
+      00:00:12  O2 RESERVES: 100%
+      00:00:15  NAVIGATION: OFFLINE — ASTEROID BELT INTERFERENCE
+      00:00:20  DISTRESS BEACON: ACTIVE
+      00:00:25  TERMINAL: READY
+
+      СТАТУС: Капсула стабильна. Требуется ручное управление.
+
+      ██ ЦЕЛЬ АКТИВИРОВАНА: прочитайте /system/mission_briefing.txt ██
+  - path: "/system/mission_briefing.txt"
+    type: file
+    content: |
+      ╔══════════════════════════════════════════╗
+      ║        БРИФИНГ МИССИИ — УРОВЕНЬ 0       ║
+      ╚══════════════════════════════════════════╝
+
+      Астронавт, вы успешно освоили базовые команды терминала.
+
+      Что вы изучили:
+        ✓ ls    — навигация по файловой системе
+        ✓ cd    — перемещение между директориями
+        ✓ cat   — чтение содержимого файлов
+
+      Следующая задача: активировать шлюз корабля.
+      Для этого потребуется изменить права доступа к скриптам.
+
+      КОМАНДА ДЛЯ ЗАВЕРШЕНИЯ МИССИИ:
+        cat /system/mission_briefing.txt
+
+      [МИССИЯ ВЫПОЛНЕНА — ПЕРЕХОД К УРОВНЮ 1]
+
+learning_objectives:
+  - command: "ls"
+    description: "Показать список файлов в текущей директории"
+    example: "ls -la /docs"
+  - command: "cd"
+    description: "Перейти в директорию"
+    example: "cd /system"
+  - command: "cat"
+    description: "Прочитать содержимое файла"
+    example: "cat /docs/emergency_protocol.txt"
+
+win_condition:
+  type: "file_read"
+  file: "/system/mission_briefing.txt"
+
+hints:
+  - level: 1
+    text: "Попробуйте команду ls — она покажет, что есть в текущей директории."
+  - level: 2
+    text: "Файлы хранятся в папках. Команда cd /system переведёт вас в системную папку."
+  - level: 3
+    text: "Введите: cd /system && cat mission_briefing.txt — и миссия завершится. (−10 очков)"
+
+reward:
+  oxygen_bonus: 0
+  score: 50
+  unlock_log: "Терминал освоен. Добро пожаловать на борт, астронавт. Следующая остановка — Шлюз."

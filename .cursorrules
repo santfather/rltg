@@ -1,0 +1,28 @@
+You are working on a Retro Terminal Linux Game built with React + TypeScript + xterm.js.
+
+MODELS AVAILABLE (Ollama localhost:11434):
+- Architecture & analysis: deepseek-analyst:latest
+- Code generation: qwen-generator:latest
+- UI/CSS/Visual: ui-designer:latest
+- Code review & debugging: deepseek-r1:7b
+- Fast autocomplete: qwen2.5-coder:7b
+
+STRICT RULES:
+1. Never mix business logic and UI components
+2. All game text comes from YAML level files only
+3. TypeScript strict mode, no `any`
+4. Virtual filesystem is immutable — always return new state
+5. Commands are parsed in CommandParser.ts, not in components
+
+PROJECT STRUCTURE:
+game/src/engine/     — pure TypeScript logic (no React)
+game/src/components/ — React components only
+game/src/hooks/      — React hooks bridging UI and engine
+game/src/levels/     — YAML level files (content only)
+game/src/store/      — Zustand stores
+game/src/types/      — TypeScript type definitions
+
+When asked to create a new level, generate a complete YAML file
+following the schema in game/src/types/level.types.ts.
+
+Respond in Russian when explaining, use English in code and comments.

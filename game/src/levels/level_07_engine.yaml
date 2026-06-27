@@ -1,0 +1,166 @@
+id: "level_07"
+title: "Миссия 7: Машинное отделение"
+location: "Машинное отделение — Engine Room"
+
+ascii_art_path: "level_07.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   ENGINE ROOM — CRITICAL O₂         ║
+  ║   legacy_lockd: ZOMBIE PROCESS      ║
+  ║   O2: ██░░░░░░░░░░ 28%              ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |  ENGINE ROOM     |
+    |                  |
+    |[DIAG]  [ENGINE/] |
+    |  .        .      |
+    | PID:1337 99%CPU  |
+    | [START ENG >>>]  |
+    '=================='
+  hotspots:
+    - id: "diag"
+      label: "[DIAG]"
+      tooltip: "Диагностика.\nrun_diag.sh"
+      detail: |
+        .---------.
+        |diagnost |
+        |ics/     |
+        |run_diag |
+        |.sh      |
+        '---------'
+      nudge: "ps aux | grep legacy"
+
+    - id: "engine"
+      label: "[ENGINE/]"
+      tooltip: "Двигательная система.\nstart_engines.sh"
+      detail: |
+        .---------.
+        | engine/ |
+        |start    |
+        |_engines |
+        |.sh      |
+        '---------'
+      nudge: "cd /engine"
+
+    - id: "start"
+      label: "[START ENG >>>]"
+      tooltip: "Запуск двигателей\nпосле kill legacy_lockd"
+      detail: |
+        .---------.
+        |legacy   |
+        |_lockd   |
+        |PID 1337 |
+        |kill -9  |
+        '---------'
+      nudge: "sudo kill -9 1337"
+
+narrative:
+  - "RETRO-UX // МАШИННОЕ ОТДЕЛЕНИЕ — НОСТРОМО-8"
+  - "⚠  O₂: КРИТИЧЕСКИЙ УРОВЕНЬ"
+  - "Двигательная система заблокирована процессом-зомби legacy_lockd."
+  - "Найди и уничтожь зависший процесс. Быстро."
+  - "ЗАДАЧА: Убей legacy_lockd и запусти двигатели."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/engine_manual.txt"
+    type: file
+    content: |
+      МАШИННОЕ ОТДЕЛЕНИЕ — ИНСТРУКЦИЯ
+      Зависший процесс legacy_lockd (PID 1337) блокирует запуск.
+      1. ps aux | grep legacy
+      2. sudo kill -9 1337
+      3. cd /engine && ./start_engines.sh
+  - path: "/diagnostics"
+    type: dir
+  - path: "/diagnostics/run_diag.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "Диагностика двигательной системы..."
+      echo "  legacy_lockd: BLOCKING (PID 1337)"
+      echo "  Диск: см. df -h"
+  - path: "/engine"
+    type: dir
+  - path: "/engine/start_engines.sh"
+    type: file
+    permissions: "750"
+    content: |
+      #!/bin/bash
+      echo "[ENGINE] legacy_lockd: terminated"
+      echo "[ENGINE] Ignition sequence started..."
+      echo "[ENGINE] MAIN THRUSTERS: ONLINE ✓"
+  - path: "/engine/engine_status.txt"
+    type: file
+    content: |
+      ENGINE STATUS: LOCKED
+      Blocker: legacy_lockd (PID 1337)
+      Action required: kill process, then start engines
+
+sudo_password: "n0str0m0"
+
+mock_processes:
+  - pid: 1337
+    user: "root"
+    cpu: 99.9
+    mem: 45.2
+    command: "legacy_lockd"
+    is_target: true
+  - pid: 101
+    user: "pilot"
+    cpu: 0.0
+    mem: 0.1
+    command: "bash"
+  - pid: 1401
+    user: "pilot"
+    cpu: 0.0
+    mem: 0.1
+    command: "engine_monitor"
+
+disk_usage:
+  - filesystem: "/dev/sda1"
+    size: "500G"
+    used: "487G"
+    avail: "13G"
+    mount: "/"
+  - filesystem: "/dev/sdb1"
+    size: "100G"
+    used: "2G"
+    avail: "98G"
+    mount: "/cargo"
+
+learning_objectives:
+  - command: "ps aux"
+    description: "Список всех процессов"
+    example: "ps aux"
+  - command: "df -h"
+    description: "Использование дискового пространства"
+    example: "df -h"
+  - command: "kill -9"
+    description: "Завершить зависший процесс"
+    example: "sudo kill -9 1337"
+
+win_condition:
+  type: "process_killed_and_command"
+  target_pid: 1337
+  command: "./start_engines.sh"
+  working_directory: "/engine"
+
+hints:
+  - level: 1
+    text: "Найди что жрёт CPU: ps aux | grep legacy"
+  - level: 2
+    text: "Уничтожь процесс: sudo kill -9 1337"
+  - level: 3
+    text: "Полное решение: ps aux | grep legacy → sudo kill -9 1337 → cd /engine → ./start_engines.sh (−10 очков)"
+
+reward:
+  oxygen_bonus: 30
+  score: 250
+  unlock_log: "Двигатели запущены. Курс установлен. Следующий отсек: реакторный."

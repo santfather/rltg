@@ -1,0 +1,190 @@
+id: "level_04"
+title: "Миссия 4: Рубка связи"
+location: "Рубка связи — Bridge Deck"
+
+ascii_art_path: "level_04.svg"
+
+ascii_art: |
+  ╔══════════════════════════════════════╗
+  ║   COMMUNICATIONS BRIDGE            ║
+  ║   NET: DEGRADED — 1 NODE ONLINE    ║
+  ║   O2: ████░░░░░░░░ 38%             ║
+  ╚══════════════════════════════════════╝
+
+section_plan:
+  ascii: |
+    .==================.
+    |  COMMS BRIDGE    |
+    |                  |
+    |[NETWORK][SECRET] |
+    |   .        .     |
+    | ssh 10.0.0.42    |
+    | [RELAY remote]   |
+    |  rescue_op       |
+    '=================='
+  hotspots:
+    - id: "network"
+      label: "[NETWORK]"
+      tooltip: "Сетевые конфиги.\nIP бота «Йонас» в interfaces.conf"
+      detail: |
+        .---------.
+        |/network/|
+        |eth1:    |
+        |10.0.0.1 |
+        |.42=bot  |
+        '---------'
+      nudge: "cat /network/interfaces.conf"
+
+    - id: "secret"
+      label: "[SECRET]"
+      tooltip: "SSH credentials.\nФайл с правами 600."
+      detail: |
+        .---------.
+        |/secrets/|
+        |ssh_cred |
+        |.txt     |
+        |rescue_op|
+        '---------'
+      nudge: "cat /secrets/ssh_credentials.txt"
+
+    - id: "relay"
+      label: "[RELAY remote]"
+      tooltip: "Ретранслятор на боте «Йонас».\nSSH → ./activate_relay.sh"
+      detail: |
+        .---------.
+        |ssh      |
+        |rescue_op|
+        |@10.0.0. |
+        |42       |
+        '---------'
+      nudge: "ssh rescue_op@10.0.0.42"
+
+narrative:
+  - "СИСТЕМА: Рубка связи. Основная антенна уничтожена. Резервный узел — на спасательном боте."
+  - "АИ «МАТЬ»: Обнаружен активный SSH-узел. IP: 10.0.0.42 — спасательный бот «Йонас»."
+  - "СИСТЕМА: Бот «Йонас» в зоне приёма. Нужно подключиться и активировать ретранслятор."
+  - "ЛАМБЕРТ [запись]: «IP-адрес бота я записала в сетевых логах. Пароль — в /secrets/»"
+  - "СИСТЕМА: Кислород критически мал. Скорость — ваш главный союзник."
+  - "ЗАДАЧА: Проверьте сеть, подключитесь по SSH к боту «Йонас» и активируйте ретранслятор."
+
+filesystem:
+  - path: "/"
+    type: dir
+  - path: "/network"
+    type: dir
+  - path: "/network/interfaces.conf"
+    type: file
+    content: |
+      # NETWORK INTERFACES — NOSTROMO-8
+      ══════════════════════════════════
+      eth0:  192.168.1.100   [MAIN — OFFLINE]
+      eth1:  10.0.0.1        [RESCUE NET — ONLINE]
+      lo:    127.0.0.1       [LOOPBACK]
+
+      RESCUE NETWORK — АКТИВНЫЕ УЗЛЫ:
+        10.0.0.1   — nostromo8 (вы здесь)
+        10.0.0.42  — rescue_bot_jonas [ONLINE]
+        10.0.0.99  — [НЕИЗВЕСТНОЕ УСТРОЙСТВО]
+  - path: "/network/ping_log.txt"
+    type: file
+    content: |
+      [PING LOG — АВТОМАТИЧЕСКАЯ ПРОВЕРКА СЕТИ]
+      ────────────────────────────────────────────
+      PING 10.0.0.42 — 3ms    — OK  [rescue_bot_jonas]
+      PING 10.0.0.99 — TIMEOUT — HOST UNREACHABLE
+      PING 8.8.8.8   — TIMEOUT — NO EXTERNAL ROUTE
+
+      Вывод: внешняя сеть недоступна. Только локальная спасательная сеть.
+  - path: "/secrets"
+    type: dir
+  - path: "/secrets/ssh_credentials.txt"
+    type: file
+    permissions: "600"
+    content: |
+      SSH ДОСТУП — СПАСАТЕЛЬНЫЙ БОТ «ЙОНАС»
+      ══════════════════════════════════════
+      HOST: 10.0.0.42
+      USER: rescue_op
+      PASS: Jonas-7749-ALPHA
+
+      ВНИМАНИЕ: Данный файл доступен только владельцу (chmod 600).
+      Не передавать третьим лицам.
+  - path: "/tools"
+    type: dir
+  - path: "/tools/net_check.sh"
+    type: file
+    permissions: "755"
+    content: |
+      #!/bin/bash
+      echo "Проверка сетевых интерфейсов..."
+      echo "  eth1: 10.0.0.1 [ONLINE]"
+      echo "Ping 10.0.0.42..."
+      echo "  rescue_bot_jonas: 3ms [REACHABLE]"
+      echo "Сеть готова к SSH-подключению."
+
+remote_filesystem:
+  host: "10.0.0.42"
+  user: "rescue_op"
+  filesystem:
+    - path: "/"
+      type: dir
+    - path: "/relay"
+      type: dir
+    - path: "/relay/status.txt"
+      type: file
+      content: |
+        РЕТРАНСЛЯТОР «ЙОНАС» — СТАТУС
+        ═══════════════════════════════
+        Мощность: 82%
+        Антенна: ГОТОВА
+        Частота: 7.492 GHz (совпадает с маяком)
+        Активация: запустите /relay/activate_relay.sh
+    - path: "/relay/activate_relay.sh"
+      type: file
+      permissions: "755"
+      content: |
+        #!/bin/bash
+        echo "▶ Бот «Йонас» — активация ретранслятора..."
+        echo "▶ Синхронизация частоты с маяком NOSTROMO-8: 7.492 GHz"
+        echo "▶ Усиление сигнала: x128"
+        echo "▶ Трансляция SOS в гиперпространство..."
+        echo "██ РЕТРАНСЛЯТОР АКТИВИРОВАН. Сигнал достиг ретрансляционной сети. ██"
+        echo "▶ Уэйленд-Ютани получит сигнал через 18 часов."
+        echo "▶ Держитесь, астронавт."
+
+learning_objectives:
+  - command: "ip a"
+    description: "Показать сетевые интерфейсы и IP-адреса"
+    example: "ip a"
+  - command: "ping"
+    description: "Проверить доступность хоста в сети"
+    example: "ping 10.0.0.42"
+  - command: "cat"
+    description: "Читать конфигурационные файлы с ограниченным доступом"
+    example: "cat /secrets/ssh_credentials.txt"
+  - command: "ssh"
+    description: "Подключиться к удалённому хосту по SSH"
+    example: "ssh rescue_op@10.0.0.42"
+  - command: "curl"
+    description: "Выполнить HTTP-запрос (симуляция проверки статуса)"
+    example: "curl http://10.0.0.42/status"
+
+win_condition:
+  type: "command_executed"
+  command: "./activate_relay.sh"
+  working_directory: "/relay"
+  requires_ssh: true
+  ssh_host: "10.0.0.42"
+
+hints:
+  - level: 1
+    text: "Сначала проверьте сеть: ip a и ping 10.0.0.42. Данные для подключения в /secrets/ssh_credentials.txt"
+  - level: 2
+    text: "Подключитесь к боту: ssh rescue_op@10.0.0.42 — пароль в /secrets/ssh_credentials.txt. Там найдёте /relay/"
+  - level: 3
+    text: "ssh rescue_op@10.0.0.42 → cd /relay → ./activate_relay.sh (пароль: Jonas-7749-ALPHA) (−10 очков)"
+
+reward:
+  oxygen_bonus: 30
+  score: 250
+  unlock_log: "Сигнал усилен и передан! Спасение близко. Остался последний рубеж — машинное отделение. Удержите корабль."

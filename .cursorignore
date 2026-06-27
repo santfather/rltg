@@ -1,0 +1,16 @@
+# Cursor не индексирует эти папки (аналог .gitignore, только для IDE)
+
+# ComfyUI — полностью
+ComfyUI/
+
+# Сборка и зависимости
+game/node_modules/
+game/dist/
+game/coverage/
+
+# Большие бинарные ассеты
+assets/
+
+# Кэш TypeScript / Vite
+game/node_modules/.vite/
+game/node_modules/.tmp/
