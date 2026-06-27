@@ -42,7 +42,6 @@ function GameApp() {
   const setMapOpen = useGameStore((s) => s.setMapOpen);
 
   const levelResult = tryGetLevelById(currentLevelId);
-  const level = levelResult.ok ? levelResult.level : null;
 
   useOxygen();
   useAudio();
@@ -112,6 +111,8 @@ function GameApp() {
       </>
     );
   }
+
+  const level = levelResult.level;
 
   if (phase === 'gameover') {
     return (
